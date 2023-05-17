@@ -46,11 +46,10 @@ We have two different parts of the application Car API and reservation API:
 
 * [http://localhost:8080/api/cars](http://localhost:8080/api/cars) with the GET method we get all cars from DB
 * [http://localhost:8080/api/cars](http://localhost:8080/api/cars)  with POST method we can create new car 
-Here we have logic that if customer use invalid id (something different form C + 8 digits), 
-system will recognize and generate new car id instead of one that customer use, and will return new car object with generated id
+Here we have logic that customer can't send ID if he sends id with API system will prevent creation and send beck error response with message,
 * [http://localhost:8080/api/cars](http://localhost:8080/api/cars) with the PUT method instead carId we need to use real carId like C12345678, 
-if system don't find car in DB it will return 404 (not found status), if finds it will update. There are several validations.
-* [http://localhost:8080/api/cars/carId](http://localhost:8080/api/cars/carId) with the DELETE method  is same sa for update, system deletes car
+if system don't find car in DB it will return 404 (not found status) with message, if finds it will update. There are several validations.
+* [http://localhost:8080/api/cars/carId](http://localhost:8080/api/cars/carId) with the DELETE method it is same as for update, system deletes car
 
 #### Reservation API
 
@@ -66,13 +65,12 @@ example:
 "model": "128"
 }`
 
-POST in Car API method will not update existing data in DB, only will create new, ones if the customer uses an invalid id,
-the system will generate a new one for him/her, if the customer use id of the existing car, the system will again generate
-new id and save the car in DB, and return data of the new car
+POST in Car API method will not update existing data in DB, only will create new, the system will generate a new ID for 
+him/her, if the customer use id of the existing car, the system will again generate new
 
 If values (model and producer are empty), Exception will be thrown, system will return BAD_REQUEST (400) with appropriate message 
 
-DELETE in CAR API if we want to delete valid cars, all reservations that
+DELETE in CAR API if we want to delete valid cars, all reservations that have that car will be deleted first
 
 I didn't validate the names of the producer or model (it is possible to add a car with producer `!l56933` and model `!#$%^`),
 didn't want to go into so much in detail, especially because this is an open endpoint without any security
@@ -92,11 +90,10 @@ The system expects an int value for the duration, so `25.5` will not be excepted
 Start attribute for Time using this format: 2023-05-14T18:00:00
 
 C<number> validation is changeable it depends on the form 3 property in the `application.property` file:
-* `car.id.pattern` This is EL and at the moment is set to accept the C letter and 8 digits after
 * `cad.id.prefix.letter`= This is the prefix letter which will be used, it is set to C, but it can be different (ex: B, D...)
 * `cad.id.number.of.digits`= This is the number of digits, at the moment it is 8 
 
-### Postman colection
+### Postman collection
 
 In resources, there is a folder postman where you can find exported Postman collection , for easier testing (with prepared data)
 you can import that file and just execute calls (and play with it)

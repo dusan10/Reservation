@@ -100,21 +100,12 @@
 			"response": []
 		},
 		{
-			"name": "Delete car",
+			"name": "Delete saved car",
 			"request": {
 				"method": "DELETE",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": " {\n    \"id\": \"C11111111\",\n    \"producer\": \"Zastava\",\n    \"model\": \"128\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
-					"raw": "http://localhost:8080/api/cars/{C11111111}",
+					"raw": "http://localhost:8080/api/cars/C15257561",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -123,7 +114,28 @@
 					"path": [
 						"api",
 						"cars",
-						"{C11111111}"
+						"C15257561"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/cars/C15257561",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"cars",
+						"C15257561"
 					]
 				}
 			},

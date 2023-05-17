@@ -22,4 +22,9 @@ public class Car {
 
     @Column(name = "model", nullable = false)
     private String model;
+
+    public Car(String producer, String model) {
+        this.producer = producer;
+        this.model = model;
+    }
 }

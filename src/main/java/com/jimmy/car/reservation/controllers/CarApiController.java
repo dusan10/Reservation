@@ -49,13 +49,13 @@ public class CarApiController {
     }
 
     @PutMapping
-    public ResponseEntity<Car> updateCar(@RequestBody Car car) {
+    public ResponseEntity<?> updateCar(@RequestBody Car car) {
         try {
             Car updatedCar = carService.updateCar(car);
             return ResponseEntity.ok(updatedCar);
         } catch (CarNotFoundException ex) {
             LOGGER.error(ex.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car with that id value was not found");
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return ResponseEntity.badRequest().build();
@@ -63,13 +63,13 @@ public class CarApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeCar(@PathVariable String id) {
+    public ResponseEntity<?> removeCar(@PathVariable String id) {
         try {
             carService.removeCar(id);
             return ResponseEntity.noContent().build();
         } catch (CarNotFoundException ex) {
             LOGGER.error(ex.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car with that id value was not found");
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return ResponseEntity.badRequest().build();
@@ -77,13 +77,13 @@ public class CarApiController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> getCarByIdentifier(@PathVariable String id) {
+    public ResponseEntity<?> getCarByIdentifier(@PathVariable String id) {
         Optional<Car> car = carService.getCarByIdentifier(id);
         if (car.isPresent()) {
             return ResponseEntity.ok(car.get());
         } else {
             LOGGER.error("Car is not found for id {}", id);
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car with that id value was not found");
         }
     }
 }

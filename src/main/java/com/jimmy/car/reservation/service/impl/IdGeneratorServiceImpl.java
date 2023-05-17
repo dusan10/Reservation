@@ -10,18 +10,13 @@ import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class IdGeneratorServiceImpl implements IdGeneratorService {
 
     private static final String CAR_CHARACTER_PROPERTY = "${cad.id.prefix.letter}";
-    private static final String CAR_ID_PATTERN_PROPERTY = "${car.id.pattern}";
     private static final String NUMBER_OF_DIGITS = "${cad.id.number.of.digits}";
 
-    @Value(CAR_ID_PATTERN_PROPERTY)
-    private String carIdPattern;
 
     @Value(CAR_CHARACTER_PROPERTY)
     private String characterForCarId;
@@ -37,25 +32,17 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     }
 
     @Override
-    public boolean isValidCarId(String carId) {
-        Pattern pattern = Pattern.compile(carIdPattern);
-        Matcher matcher = pattern.matcher(carId);
-        return matcher.matches();
-    }
-
-    @Override
-    public boolean isIdUsed(String id) {
-        List<Car> allCars = carRepository.findAll();
-        return allCars.stream().anyMatch(car -> car.getId().equals(id));
-    }
-
-    @Override
     public String generateNewId() throws NoSuchAlgorithmException {
         String id;
         do {
             id = generateId();
         } while (isIdUsed(id));
         return id;
+    }
+
+    private boolean isIdUsed(String id) {
+        List<Car> allCars = carRepository.findAll();
+        return allCars.stream().anyMatch(car -> car.getId().equals(id));
     }
 
     private String generateId() throws NoSuchAlgorithmException {

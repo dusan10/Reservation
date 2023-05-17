@@ -38,25 +38,24 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public synchronized Car addCar(Car car) throws NoSuchAlgorithmException {
-        LOGGER.info(car.getId());
-        if (!idGeneratorService.isValidCarId(car.getId())) {
-            String newId = idGeneratorService.generateNewId();
-            LOGGER.warn("New Car have invalid id, carId {}, system generated new id {}", car.getId(), newId);
-            car.setId(newId);
-        } else if (carRepository.findAll().stream().anyMatch(savedCar -> savedCar.getId().equals(car.getId()))) {
-            String newId = idGeneratorService.generateNewId();
-            LOGGER.warn("New Car have valid id, but car with that id already exist {}, so system generated new id {}", car.getId(), newId);
-            car.setId(newId);
-        } else if (car.getModel() == null || car.getModel().isEmpty() || car.getProducer() == null || car.getProducer().isEmpty()) {
+        if (car.getId() != null) {
+            throw new CarBadValuesException("Please do not use ID as attribute, system will generate ID of car by it self");
+        }
+        if (car.getModel() == null || car.getModel().isEmpty() || car.getProducer() == null || car.getProducer().isEmpty()) {
             LOGGER.warn("Car values are null or empty for car id {}", car.getId());
             throw new CarBadValuesException("Model or Producer attributes are null or empty");
         }
+        car.setId(idGeneratorService.generateNewId());
         return carRepository.save(car);
     }
 
     @Override
     @Transactional
     public synchronized Car updateCar(Car car) {
+        if (car.getId() == null){
+            LOGGER.warn("Car values are null or empty for car id {}", car.getId());
+            throw new CarNotFoundException("ID attribute can't be null");
+        }
         Car savedCar = getCarByIdentifier(car.getId()).orElseThrow(() -> {
             LOGGER.error("Car with id {} not found", car.getId());
             return new CarNotFoundException("Car with id " + car.getId() + " not found");

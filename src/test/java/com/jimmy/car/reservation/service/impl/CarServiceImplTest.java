@@ -1,7 +1,6 @@
 package com.jimmy.car.reservation.service.impl;
 
 import com.jimmy.car.reservation.dao.CarRepository;
-import com.jimmy.car.reservation.dao.ReservationRepository;
 import com.jimmy.car.reservation.exceptions.CarBadValuesException;
 import com.jimmy.car.reservation.model.Car;
 import com.jimmy.car.reservation.service.IdGeneratorService;
@@ -25,7 +24,6 @@ class CarServiceImplTest {
 
     private final CarRepository carRepository = Mockito.mock(CarRepository.class);
     private final IdGeneratorService idGeneratorService = Mockito.mock(IdGeneratorService.class);
-    private final ReservationRepository reservationRepository = Mockito.mock(ReservationRepository.class);
 
     @InjectMocks
     private CarServiceImpl carService;
@@ -36,15 +34,14 @@ class CarServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         car = new Car();
-        car.setId("C12345");
+        car.setId(null);
         car.setProducer("Toyota");
         car.setModel("Camry");
     }
 
     @Test
-    @DisplayName("Add car test with invalid id")
-    void addCarTestNotValidId() throws NoSuchAlgorithmException {
-        Mockito.when(idGeneratorService.isValidCarId("C12345")).thenReturn(false);
+    @DisplayName("Add car test with inputted id")
+    void addCarTest() throws NoSuchAlgorithmException {
         Mockito.when(carRepository.findAll()).thenReturn(Collections.emptyList());
         Mockito.when(idGeneratorService.generateNewId()).thenReturn("generatedValue");
         Mockito.when(carRepository.save(car)).thenReturn(car);
@@ -57,24 +54,19 @@ class CarServiceImplTest {
     }
 
     @Test
-    @DisplayName("Add car test with valid id")
-    void addCarTestValidId() throws NoSuchAlgorithmException {
-        Mockito.when(idGeneratorService.isValidCarId(Mockito.any())).thenReturn(true);
+    @DisplayName("Add car test with model null and model empty string")
+    void addCarTestNoId() {
+        car.setModel(null);
         Mockito.when(carRepository.save(Mockito.any())).thenReturn(car);
-        Car savedCar = carService.addCar(car);
-        Assertions.assertEquals(car, savedCar);
-        Mockito.verify(idGeneratorService, Mockito.never()).generateNewId();
-        Mockito.verify(carRepository, Mockito.times(1)).save(car);
+        assertThrows(CarBadValuesException.class, () -> carService.addCar(car));
+        car.setModel("");
+        assertThrows(CarBadValuesException.class, () -> carService.addCar(car));
     }
 
     @Test
     @DisplayName("Add car test with model null and model empty string")
-    void addCarTestNoId() throws NoSuchAlgorithmException {
-        car.setModel(null);
-        Mockito.when(idGeneratorService.isValidCarId(Mockito.any())).thenReturn(true);
-        Mockito.when(carRepository.save(Mockito.any())).thenReturn(car);
-        assertThrows(CarBadValuesException.class, () -> carService.addCar(car));
-        car.setModel("");
+    void addCarTestWithId() {
+        car.setId("C12311452");
         assertThrows(CarBadValuesException.class, () -> carService.addCar(car));
     }
 }

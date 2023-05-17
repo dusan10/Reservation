@@ -44,49 +44,28 @@ class CarServiceImplMultithreadingEnvironmentIntegrationTest {
     private CarService carService;
 
     private Car originalCar;
-    private Car updateValuesCar;
 
     @BeforeEach
     void setUp() {
-        originalCar = new Car("C12344321", "Zastava", "128");
-        updateValuesCar = new Car("C12344321", "Zastava", "kec");
+        originalCar = new Car("Zastava", "128");
     }
 
     @Test
     @DisplayName("Add and update car")
     void addAndUpdateCar() throws NoSuchAlgorithmException {
         Car savedCar = carService.addCar(originalCar);
+        Car updateValuesCar = new Car(savedCar.getId(), "Zastava", "kec");
         Car updatedCar = carService.updateCar(updateValuesCar);
         Assertions.assertEquals(savedCar.getId(), updatedCar.getId());
         Assertions.assertEquals(savedCar.getProducer(), updatedCar.getProducer());
         Assertions.assertEquals("kec", updatedCar.getModel());
-
-        carRepository.delete(updatedCar);
     }
 
     @Test
-    @DisplayName("Add Car In Multi Thread Environment")
-    void addCarInMultiThreadEnvironment() throws InterruptedException, ExecutionException, NoSuchAlgorithmException {
-        int numThreads = 100;
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-        List<Callable<Optional<Car>>> tasks = new ArrayList<>();
-
-        // Create tasks for update car
-        for (int i = 0; i < numThreads; i++) {
-            originalCar.setId("C" +( 70000000 + i));
-            LOGGER.warn(originalCar.getId());
-            Callable<Optional<Car>> task = () -> Optional.ofNullable(carService.addCar(originalCar));
-            tasks.add(task);
-        }
-
-        // Submit tasks to executor service
-        List<Future<Optional<Car>>> futures = executorService.invokeAll(tasks);
-
-        // Wait for all tasks to complete
-        executorService.shutdown();
-        executorService.awaitTermination(1, TimeUnit.MINUTES);
-
-       Assertions.assertEquals(103, carRepository.findAll().size());
-
+    @DisplayName("delete saved car")
+    void deleteAddedCar() throws NoSuchAlgorithmException {
+        Car savedCar = carService.addCar(originalCar);
+        carService.removeCar(savedCar.getId());
+        Assertions.assertEquals(carRepository.getCarByIdentifier(savedCar.getId()), Optional.empty());
     }
 }
